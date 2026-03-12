@@ -4,17 +4,13 @@ const fs = require('fs');
 // Load data from data2.js
 const data2Content = fs.readFileSync('./data2.js', 'utf8');
 
-// Extract data arrays using regex
-const dataRoleMatch = data2Content.match(/let dataRole = (\[[\s\S]*?\]);/);
-const dataUserMatch = data2Content.match(/let dataUser = (\[[\s\S]*?\]);/);
+// Use Function constructor to safely evaluate the data
+const extractData = new Function(`
+  ${data2Content}
+  return { dataRole, dataUser };
+`);
 
-if (!dataRoleMatch || !dataUserMatch) {
-  console.error('Could not extract data from data2.js');
-  process.exit(1);
-}
-
-const dataRole = eval(dataRoleMatch[1]);
-const dataUser = eval(dataUserMatch[1]);
+const { dataRole, dataUser } = extractData();
 
 // MongoDB connection
 const uri = 'mongodb://localhost:27017';
